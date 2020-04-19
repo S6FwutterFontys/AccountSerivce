@@ -512,6 +512,3 @@ healthchecksdb
 MigrationBackup/
 
 # End of https://www.gitignore.io/api/osx,rider,linux,windows,dotnetcore,visualstudio,visualstudiocode
-
-appsettings.json
-appsettings.Development.json

@@ -1,47 +1,62 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AccountService.Domain;
+using AccountService.Helpers;
 using AccountService.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AccountService.Services
 {
     public class AccountService : IAccountService
     {
         private readonly IAccountRepository _repository;
+        private readonly RegexUtils _regexUtils;
 
-        public AccountService(IAccountRepository repository)
+        public AccountService(IAccountRepository repository, RegexUtils regexUtils)
         {
             this._repository = repository;
+            _regexUtils = regexUtils;
         }
 
-        public async Task CreateAccount(Account account)
+        public async Task CreateAccount(string email, string password)
         {
-            var acc = await _repository.Get(account.Email);
-            if (acc != null) return;
-
+            var acc = await _repository.Get(email);
+            
+            if (acc == null || _regexUtils.IsValidEmail(email) || _regexUtils.IsValidPassword(password)) return;
+            
             await _repository.Create(new Account()
             {
                 Id = Guid.NewGuid(),
-                Email = account.Email,
-                isDelegate = account.isDelegate,
-                isDAppOwner = account.isDAppOwner
+                Email = email,
+                Password = password
             });
         }
 
-        public async Task UpdateAccount(string email, Account account)
+        public async Task<Account> UpdateAccount(string email, string password)
         {
+            if (_regexUtils.IsValidEmail(email) || _regexUtils.IsValidPassword(password)) return null;
+            
             var acc = await GetAccount(email);
-            await _repository.Update(acc.Id, account);
+            if (_regexUtils.IsValidPassword(password))
+            {
+                acc.Password = password;
+            }
+            else
+            {
+                return null;
+            }
+            
+            return await _repository.Update(acc.Id, acc);
         }
 
-        public async Task AddRole(Account account, bool isDelegate, bool isDAppOwner)
+        public async Task<Account> UpdateRole(string email, bool isDelegate, bool isDAppOwner)
         {
-            var acc = await GetAccount(account.Email);
+            var acc = await GetAccount(email);
             
-            acc.isDelegate = account.isDelegate;
-            acc.isDAppOwner = account.isDAppOwner;
+            acc.isDelegate = isDelegate;
+            acc.isDAppOwner = isDAppOwner;
 
-            await _repository.Update(acc.Id, acc);
+            return (await _repository.Update(acc.Id, acc));
         }
 
         public async Task<Account> GetAccount(string email)

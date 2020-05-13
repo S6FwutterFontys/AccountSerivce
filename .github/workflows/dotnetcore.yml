@@ -32,9 +32,9 @@ jobs:
         run: docker build -t ${{ secrets.REPOSITORY_NAME }}
       - name: Tag Docker image
         run: |
-          docker tag ${{ secrets.REPOSITORY_NAME }} ${{ secrets.REPOSITORY_NAME }}:${{ github.sha }}
-          docker tag ${{ secrets.REPOSITORY_NAME }} ${{ secrets.REPOSITORY_NAME }}:latest
+          docker tag ${{ secrets.REPOSITORY_NAME }} joeriberman/${{ secrets.REPOSITORY_NAME }}:${{ github.sha }}
+          docker tag ${{ secrets.REPOSITORY_NAME }} joeriberman/${{ secrets.REPOSITORY_NAME }}:latest
       - name: Push Docker image
         run: |
-          docker push s652/${{ secrets.REPOSITORY_NAME }}:${{ github.sha }}
-          docker push s652/${{ secrets.REPOSITORY_NAME }}:latest
+          docker push joeriberman/${{ secrets.REPOSITORY_NAME }}:${{ github.sha }}
+          docker push joeriberman/${{ secrets.REPOSITORY_NAME }}:latest
